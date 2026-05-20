@@ -8,9 +8,15 @@ HTML/CSS template · embedded fonts · headless PDF export · strict 210 × 297 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Skill](https://img.shields.io/badge/Claude-Skill-D97757)](SKILL.md)
-[![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#requirements)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-0078D4)](#requirements)
 
 [**Skill →**](SKILL.md) · [**Template →**](examples/template.html) · [**Quick Start →**](#quick-start)
+
+<br/>
+
+<img src="docs/preview.png" alt="Layout preview (fully redacted)" width="640" />
+
+<sub><i>Layout preview — every text field redacted; the skill builds the structure, you supply the content.</i></sub>
 
 </div>
 
@@ -44,19 +50,23 @@ A self-contained playbook for producing **publication-grade Chinese resumes** th
 ## Quick start
 
 ```powershell
-# 1. Clone
+# Windows
 git clone https://github.com/2084413277/cc-resume.git
 cd cc-resume
-
-# 2. Download the embedded fonts (one-time, ~5 MB)
 .\scripts\fetch-fonts.ps1
-
-# 3. Copy the template, fill in your content
 Copy-Item examples\template.html my-resume.html
 # edit my-resume.html — replace every {{PLACEHOLDER}}
-
-# 4. Render to PDF
 .\scripts\build-pdf.ps1 -Html my-resume.html -Pdf my-resume.pdf
+```
+
+```bash
+# macOS / Linux
+git clone https://github.com/2084413277/cc-resume.git
+cd cc-resume
+./scripts/fetch-fonts.sh
+cp examples/template.html my-resume.html
+# edit my-resume.html — replace every {{PLACEHOLDER}}
+./scripts/build-pdf.sh my-resume.html my-resume.pdf
 ```
 
 Open `my-resume.pdf`. If you're at 2 pages, the skill doc has an A4-fit lever table — every margin/line-height value is mapped to its rough px-savings.
@@ -71,11 +81,15 @@ cc-resume/
 ├── README.md
 ├── LICENSE                   ← MIT
 ├── .gitignore
+├── docs/
+│   └── preview.png           ← layout preview (fully redacted)
 ├── examples/
 │   └── template.html         ← blank A4 resume with {{PLACEHOLDER}} slots
 └── scripts/
-    ├── fetch-fonts.ps1       ← downloads .woff2 fonts into fonts/
-    └── build-pdf.ps1         ← headless-Edge PDF render + page-count check
+    ├── fetch-fonts.ps1       ← Windows: downloads .woff2 fonts into fonts/
+    ├── fetch-fonts.sh        ← macOS / Linux equivalent
+    ├── build-pdf.ps1         ← Windows: headless-Edge PDF render + page-count
+    └── build-pdf.sh          ← macOS / Linux equivalent (Chrome / Chromium / Edge)
 ```
 
 `fonts/` is `.gitignore`'d — fetch on first run.
@@ -110,8 +124,8 @@ The skill is also useful **outside** AI tooling — it's a fully readable design
 
 ## Requirements
 
-- **Windows** with PowerShell 5.1+ (the build scripts are PowerShell; on macOS/Linux the same logic translates trivially — PRs welcome).
-- **Microsoft Edge** (any modern version) — used in headless mode for PDF rendering. Chrome works too with a one-line script tweak.
+- **Windows / macOS / Linux** — build scripts available for all three (PowerShell on Windows, bash on macOS/Linux).
+- **A Chromium-family browser** (Microsoft Edge / Chrome / Chromium) — used in headless mode for PDF rendering.
 - **Network** for the one-time `.woff2` font fetch from jsDelivr.
 
 ---
@@ -145,12 +159,17 @@ The skill is also useful **outside** AI tooling — it's a fully readable design
 
 ## Status & roadmap
 
-Pre-1.0. The skill works for the common Chinese-resume genres (research, IC/AI, translation, product). Planned:
+Pre-1.0. The skill works for the common Chinese-resume genres (research, IC/AI, translation, product). Done so far:
 
-- macOS / Linux build script (`build-pdf.sh`)
-- More section presets (创业 / 公务员 / 金融)
-- A "double resume" template (中英对照)
+- ✅ Cross-platform build scripts (Windows PowerShell + macOS/Linux bash)
+- ✅ Section preset library in `SKILL.md` (research / IC-AI / translation / product / 创业 / 公务员 / 金融)
+- ✅ Bilingual template (中英对照) at [`examples/template-bilingual.html`](examples/template-bilingual.html)
+
+Planned:
+
+- More section presets (法律 / 医学 / 教师)
 - Optional Tailwind-style utility build
+- Visual previews per preset
 
 Issues, PRs, screenshots welcome.
 

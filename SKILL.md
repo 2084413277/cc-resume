@@ -289,11 +289,33 @@ You *may* adjust:
 
 ## Section ordering by major
 
-| Major / target | Section order |
-|---|---|
-| 工科 / IC / AI 研究方向 | 教育 → 实习 → 科研 → 竞赛 → 荣誉 → 个人陈述 |
-| 翻译 / 国际事务 / 文科 | 教育 → 项目经历 → 实践工作 → 语言能力 → 技能 |
-| 产品 / 商科 | 教育 → 实习 → 项目 → 竞赛 → 技能 |
+| Major / target | Section order | Notable accents |
+|---|---|---|
+| 工科 / IC / AI 研究方向 | 教育 → 实习 → 科研 → 竞赛 → 荣誉 → 个人陈述 | Paper citations in `paper-cite` block; technical em-tags |
+| 翻译 / 国际事务 / 文科 | 教育 → 项目经历 → 实践工作 → 语言能力 → 技能 | Timeline grid for口译/活动 records; certificate chips |
+| 产品 / 商科 | 教育 → 实习 → 项目 → 竞赛 → 技能 | Project-name sub-headings; outcome metrics in `<strong>` |
+| 创业 / Entrepreneurship | 教育 → 创业项目 → 实习 → 团队管理 → 竞赛 → 个人陈述 | "项目名 · 阶段（种子轮 / Pre-A / A 轮）"; revenue / user-count metrics |
+| 公务员 / 选调生 / 体制内 | 教育 → 政治面貌 → 实践锻炼 → 学生工作 → 实习 → 荣誉 → 个人陈述 | Lead with 党员身份; emphasize 思想觉悟 / 党课 / 志愿服务; lighter on commercial internships |
+| 金融 / 投行 / 券商 / 量化 | 教育 → 证书 → 实习 → 项目 → 竞赛 → 技能 | CFA / CPA / FRM 证书前置; deal sheet & ticker tags; bilingual is common |
+
+### Preset-specific guidance
+
+**创业（entrepreneurship）**
+- Replace 实习 as the lead with **创业项目** — each entry needs: company / role-as-founder / fundraising stage / team size / KPI moved.
+- Use the `award-tag` chip to mark stage: `种子轮` / `Pre-A` / `A 轮` / `已退出`.
+- Metrics belong in `<strong>`: MAU, GMV, 营收, 融资额. If pre-revenue, lead with team milestones (人员扩张到 X 人, 完成 MVP).
+
+**公务员 / 选调生**
+- The header `header-basic` line **must** include 政治面貌 (中共党员 / 预备党员). Don't redact this in a public-facing output.
+- Add a dedicated 实践锻炼 section above 实习 — covers 三下乡, 支教, 志愿服务, 社会实践调研. Each entry is a one-line `entry-desc`, no bullets needed.
+- 学生工作 deserves its own section (not merged with 实践工作) — list 团委 / 学生会 / 党支部 roles in chronological order.
+- Tone: avoid Latin technical jargon; prefer 中文术语. The skill should NOT auto-translate Chinese terms to English here.
+
+**金融 / 投行 / 量化**
+- Lead with 证书 section (right after 教育). Use the `award-tag` chip per certificate: `CFA L2` / `FRM Part 1` / `CPA` / `Series 7`.
+- Deal experience: in 实习 entries, list specific deals/transactions as bullets (匿名化时用 `某 A 股上市公司` / `某美元基金 LP`).
+- Numbers everywhere. Each bullet should ideally end with a metric: 募集金额 / 估值 / IRR / Sharpe / 模型回测收益.
+- Bilingual (中英对照) version is often required for foreign-IB applications — see [`examples/template-bilingual.html`](examples/template-bilingual.html).
 
 ## What NOT to do
 

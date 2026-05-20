@@ -24,8 +24,8 @@ The `fonts/` folder is `.gitignore`'d — run `scripts/fetch-fonts.ps1` once to 
 
 ```powershell
 # 1. Clone
-git clone https://github.com/<you>/zh-resume-a4.git
-cd zh-resume-a4
+git clone https://github.com/<you>/cc-resume.git
+cd cc-resume
 
 # 2. Download embedded fonts (one-time, ~5 MB)
 .\scripts\fetch-fonts.ps1

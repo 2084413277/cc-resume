@@ -1,0 +1,23 @@
+# Embedded fonts — fetched via scripts/fetch-fonts.ps1
+fonts/
+
+# Generated PDFs and any user resumes
+*.pdf
+my-resume*.html
+resume_*.html
+!examples/template.html
+
+# Personal data — never commit
+photo*.jpg
+photo*.png
+photo*.jpeg
+raw_*.txt
+raw_*.md
+*.docx
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

@@ -1,5 +1,5 @@
 ---
-name: zh-resume-a4
+name: cc-resume
 description: Build single-page A4 Chinese-language resumes as HTML/CSS, then export to PDF via headless Edge/Chrome. Covers Sino-Western typography pairing, user-driven theme colors, strict A4 fit (210mm × 297mm), and pitfalls when iterating with the user.
 license: Internal use only.
 ---

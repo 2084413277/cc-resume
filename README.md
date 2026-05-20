@@ -1,22 +1,43 @@
-# zh-resume-a4
+<div align="center">
 
-> A Claude Skill for building **single-page A4 Chinese-language resumes** as HTML/CSS, then exporting to PDF via headless Edge/Chrome.
+# cc-resume
 
-中文简历用 HTML/CSS 排版，严格压在 A4 一页内，导出为印刷级 PDF — 这套 skill 把整个流程的字体、配色、版式、A4 适配杠杆、PDF 导出脚本写成可复用的工作手册。
+**A Claude Skill for crafting single-page A4 Chinese-language resumes**
+
+HTML/CSS template · embedded fonts · headless PDF export · strict 210 × 297 mm
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Skill](https://img.shields.io/badge/Claude-Skill-D97757)](SKILL.md)
+[![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#requirements)
+
+[**Skill →**](SKILL.md) · [**Template →**](examples/template.html) · [**Quick Start →**](#quick-start)
+
+</div>
 
 ---
 
-## What's in here
+## What this is
 
-| File | Purpose |
+A self-contained playbook for producing **publication-grade Chinese resumes** that fit on **exactly one A4 page**. Drop `SKILL.md` into Claude / Cursor / Cline, and the model will:
+
+- Pick a sensible section ordering for your major (research / IC / translation / product / …).
+- Ask you for the accent color before styling — no surprise palettes.
+- Embed `Noto Sans SC + IBM Plex Sans + Newsreader` via `@font-face` so the PDF doesn't fall back to system fonts on Windows.
+- Render through headless Edge with a built-in page-count check; if it's not exactly 1 page, the doc lists the precise CSS levers to buy back vertical space.
+- Stay faithful to your source content — no paraphrasing, no inferred personal details, no surprise English/Chinese swaps.
+
+---
+
+## Highlights
+
+| | |
 |---|---|
-| [`SKILL.md`](SKILL.md) | The skill itself — load this into Claude / Cursor / Cline / etc. |
-| [`examples/template.html`](examples/template.html) | A blank resume template using the SKILL's CSS conventions, with `{{PLACEHOLDER}}` slots |
-| [`scripts/fetch-fonts.ps1`](scripts/fetch-fonts.ps1) | Downloads the embedded `.woff2` fonts (Noto Sans SC + IBM Plex Sans + Newsreader) into `fonts/` |
-| [`scripts/build-pdf.ps1`](scripts/build-pdf.ps1) | Renders any HTML to PDF via headless Edge, with page-count sanity check |
-| `LICENSE` | MIT |
-
-The `fonts/` folder is `.gitignore`'d — run `scripts/fetch-fonts.ps1` once to populate it.
+| **Sino-Western typography** | IBM Plex Sans (Latin) + Noto Sans SC (CJK) + Newsreader (paper citations). Embedded as `.woff2` for offline rendering. |
+| **Three-color theme system** | Re-skin the entire resume by changing three CSS vars: `--accent`, `--accent-deep`, `--tag-bg`. |
+| **Strict A4** | `210mm × min-height: 297mm` with no silent clipping. The skill doc maps each CSS lever to its px-savings. |
+| **CSS-only markers** | Bullet triangles via `clip-path`, sub-heading bars via pseudo-elements. No ugly Unicode block characters. |
+| **One-shot PDF build** | `scripts/build-pdf.ps1` runs Edge headless, kills stale processes, handles file-lock from open PDF viewers, and prints a page-count warning if you slip past A4. |
+| **Faithful to the source** | The skill explicitly forbids paraphrasing, inferring personal facts (age / 民族 / 党员), or dropping sections to force fit. |
 
 ---
 
@@ -24,56 +45,119 @@ The `fonts/` folder is `.gitignore`'d — run `scripts/fetch-fonts.ps1` once to 
 
 ```powershell
 # 1. Clone
-git clone https://github.com/<you>/cc-resume.git
+git clone https://github.com/2084413277/cc-resume.git
 cd cc-resume
 
-# 2. Download embedded fonts (one-time, ~5 MB)
+# 2. Download the embedded fonts (one-time, ~5 MB)
 .\scripts\fetch-fonts.ps1
 
 # 3. Copy the template, fill in your content
 Copy-Item examples\template.html my-resume.html
-# edit my-resume.html in your editor — replace every {{PLACEHOLDER}}
+# edit my-resume.html — replace every {{PLACEHOLDER}}
 
 # 4. Render to PDF
 .\scripts\build-pdf.ps1 -Html my-resume.html -Pdf my-resume.pdf
 ```
 
-Open `my-resume.pdf`. If you're at 2 pages, see the **A4-fit levers** table in [`SKILL.md`](SKILL.md#strict-a4-fit-1-page).
+Open `my-resume.pdf`. If you're at 2 pages, the skill doc has an A4-fit lever table — every margin/line-height value is mapped to its rough px-savings.
 
 ---
 
-## How to use as a Claude Skill
+## Repository layout
 
-1. Drop `SKILL.md` into the skills folder of your AI coding tool (Claude Desktop, Claude Code, Cursor, Cline, etc.).
-2. When you start a new resume project, ask the model: *"build me a single-page A4 Chinese resume from this raw text"* — and paste your content.
-3. The skill will:
-   - Pick a sensible section ordering for your major (research / translation / product / etc.)
-   - Ask you for the accent color before styling
-   - Embed the fonts via `@font-face`
-   - Render to PDF and verify it actually fits on one page
-   - Iterate with you on bullet structure, colors, and spacing
+```
+cc-resume/
+├── SKILL.md                  ← the skill itself (load into Claude / Cursor / Cline)
+├── README.md
+├── LICENSE                   ← MIT
+├── .gitignore
+├── examples/
+│   └── template.html         ← blank A4 resume with {{PLACEHOLDER}} slots
+└── scripts/
+    ├── fetch-fonts.ps1       ← downloads .woff2 fonts into fonts/
+    └── build-pdf.ps1         ← headless-Edge PDF render + page-count check
+```
 
-It will **not**:
-- Invent personal facts (age, ethnicity, party affiliation) — it will ask
-- Drop sections to force A4 fit without confirming with you
-- Translate or paraphrase your wording — it stays faithful to the source
-
----
-
-## Design choices, briefly
-
-- **Typography pairing**: IBM Plex Sans (Latin) + Noto Sans SC (CJK) + Newsreader (paper citation serif). Embedded as `.woff2` so Windows headless Edge doesn't fall back to a system font silently.
-- **Strict A4**: `width: 210mm; min-height: 297mm`. No `max-height + overflow: hidden` — that silently clips your content. The skill doc lists the exact CSS levers (section margins, line-heights, header padding) that buy back ~10–30 px each so you can tune to fit.
-- **One accent color**: defined as `--accent` / `--accent-deep` / `--tag-bg` CSS vars. Re-skin the whole resume by changing three hex codes.
-- **CSS-rendered markers**: bullet triangles via `clip-path`, sub-heading vertical bars via pseudo-element. Avoids ugly Unicode block characters that render unevenly across fonts.
-- **Headless PDF**: uses Edge (or Chrome) with `--print-to-pdf`. The skill doc has a workaround for the common Windows pitfall where a PDF viewer holds the file open and blocks overwrite.
+`fonts/` is `.gitignore`'d — fetch on first run.
 
 ---
 
-## Status
+## Use as a Claude Skill
 
-Pre-1.0. The skill works for the common Chinese-resume genres (research, IC/AI, translation, product), but section orderings and patterns will evolve. Issues / PRs welcome.
+1. Drop `SKILL.md` into the skills folder of your AI coding tool (Claude Code, Cursor, Cline, Continue, …).
+2. When you start a new resume project, paste your raw text and ask:
+   > *"Build me a single-page A4 Chinese resume from this content."*
+3. The skill will walk through:
+   - Choosing accent color (it will **ask**, not assume)
+   - Picking section ordering for your major
+   - Setting up `@font-face` and CSS vars
+   - Rendering, page-count checking, iterating
+   - Trimming or loosening spacing to hit exactly 1 page
+
+The skill is also useful **outside** AI tooling — it's a fully readable design doc you can follow by hand.
+
+---
+
+## What it intentionally won't do
+
+- Make up personal facts (age, ethnicity, political affiliation) — it asks.
+- Translate or paraphrase your wording — it stays faithful to the source.
+- Remove sections to force A4 fit without checking with you first.
+- Use `max-height: 297mm; overflow: hidden` to "force" 1 page — that silently clips content.
+- Rely on `PingFang SC` from system fonts — it embeds a free equivalent.
+
+---
+
+## Requirements
+
+- **Windows** with PowerShell 5.1+ (the build scripts are PowerShell; on macOS/Linux the same logic translates trivially — PRs welcome).
+- **Microsoft Edge** (any modern version) — used in headless mode for PDF rendering. Chrome works too with a one-line script tweak.
+- **Network** for the one-time `.woff2` font fetch from jsDelivr.
+
+---
+
+## Customization recipes
+
+**Re-skin to a different brand color** — change three values:
+
+```css
+:root {
+  --accent:      #2C1A5C;   /* your primary */
+  --accent-deep: #1E1241;   /* ~70% lightness of primary */
+  --tag-bg:      #ece8f5;   /* ~6% tint on white */
+}
+```
+
+**Swap section icons** — the template uses inline SVG `stroke="var(--accent)"`. Pick any 16×16 line-icon (Lucide, Heroicons, Tabler) and paste.
+
+**Switch bullet style** — the marker is a CSS triangle:
+```css
+.entry-bullets li::before {
+  clip-path: polygon(0 0, 100% 50%, 0 100%);  /* triangle */
+  /* or: border-radius: 50%;                   ← dot */
+  /* or: transform: rotate(45deg);              ← diamond */
+}
+```
+
+**Use a serif display face for the name** — add `Noto Serif SC` to the `font-family` of `.header-name` after fetching it via the script.
+
+---
+
+## Status & roadmap
+
+Pre-1.0. The skill works for the common Chinese-resume genres (research, IC/AI, translation, product). Planned:
+
+- macOS / Linux build script (`build-pdf.sh`)
+- More section presets (创业 / 公务员 / 金融)
+- A "double resume" template (中英对照)
+- Optional Tailwind-style utility build
+
+Issues, PRs, screenshots welcome.
+
+---
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
+[MIT](LICENSE) © 2026 cc-resume contributors. Free for personal and commercial use; please retain the copyright notice.
+
+The bundled fonts retain their own licenses (SIL OFL for Noto, OFL for IBM Plex Sans, OFL for Newsreader) — all permissively licensed.

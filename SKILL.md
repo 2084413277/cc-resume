@@ -86,7 +86,9 @@ Trade-off: inline data URI bloats HTML (~250 KB for a typical portrait) but lets
 
 ### When there's no photo
 
-If the source has no embedded image, render a placeholder. Don't ask the user to provide a photo — they often haven't picked one yet:
+If the source has no embedded image, **ask the user**: *"源文件里没有证件照，你提供一张吗？或者先用占位符？"* Don't silently render a placeholder — Chinese resumes default to having a portrait, and skipping it without checking is usually wrong.
+
+If the user opts for a placeholder (e.g. they're still picking the photo), use a soft gradient with a ghosted "PHOTO" wordmark — looks intentional rather than broken:
 
 ```html
 <div class="header-photo">PHOTO</div>
@@ -101,8 +103,6 @@ If the source has no embedded image, render a placeholder. Don't ask the user to
   color: #f3f4f6;
 }
 ```
-
-The gray gradient + ghosted "PHOTO" wordmark looks intentional and professional even when blank.
 
 ## Project layout
 

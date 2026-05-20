@@ -6,6 +6,8 @@ fonts/
 my-resume*.html
 resume_*.html
 !examples/template.html
+!examples/sample.html
+!examples/sample.pdf
 
 # Personal data — never commit
 photo*.jpg

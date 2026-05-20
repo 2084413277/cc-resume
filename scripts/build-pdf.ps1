@@ -20,7 +20,13 @@ if (-not (Test-Path $Html)) {
 }
 
 $Html = (Resolve-Path $Html).Path
-$Pdf  = [System.IO.Path]::GetFullPath($Pdf)
+# resolve $Pdf against the PowerShell working directory (not .NET CWD)
+if (-not [System.IO.Path]::IsPathRooted($Pdf)) {
+  $Pdf = Join-Path (Get-Location).Path $Pdf
+}
+$Pdf = [System.IO.Path]::GetFullPath($Pdf)
+$pdfDir = [System.IO.Path]::GetDirectoryName($Pdf)
+if (-not (Test-Path $pdfDir)) { New-Item -ItemType Directory -Path $pdfDir -Force | Out-Null }
 $url  = "file:///" + $Html.Replace("\","/")
 
 # Kill stale Edge processes that may hold a lock on $Pdf

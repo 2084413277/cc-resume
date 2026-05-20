@@ -26,7 +26,7 @@ HTML/CSS template · embedded fonts · headless PDF export · strict 210 × 297 
 
 A self-contained playbook for producing **publication-grade Chinese resumes** that fit on **exactly one A4 page**. Drop `SKILL.md` into Claude / Cursor / Cline, and the model will:
 
-- Pick a sensible section ordering for your major (research / IC / translation / product / …).
+- Pick a sensible section ordering for your major (research / translation / product / …).
 - Ask you for the accent color before styling — no surprise palettes.
 - Embed `Noto Sans SC + IBM Plex Sans + Newsreader` via `@font-face` so the PDF doesn't fall back to system fonts on Windows.
 - Render through headless Edge with a built-in page-count check; if it's not exactly 1 page, the doc lists the precise CSS levers to buy back vertical space.
@@ -159,10 +159,10 @@ The skill is also useful **outside** AI tooling — it's a fully readable design
 
 ## Status & roadmap
 
-Pre-1.0. The skill works for the common Chinese-resume genres (research, IC/AI, translation, product). Done so far:
+Pre-1.0. The skill works for the common Chinese-resume genres (research, translation, product). Done so far:
 
 - ✅ Cross-platform build scripts (Windows PowerShell + macOS/Linux bash)
-- ✅ Section preset library in `SKILL.md` (research / IC-AI / translation / product / 创业 / 公务员 / 金融)
+- ✅ Section preset library in `SKILL.md` (research / translation / product / 创业 / 公务员 / 金融)
 - ✅ Bilingual template (中英对照) at [`examples/template-bilingual.html`](examples/template-bilingual.html)
 
 Planned:

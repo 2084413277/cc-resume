@@ -149,6 +149,20 @@ The browser uses the first font that has the glyph — IBM Plex covers Latin/dig
 
 Body baseline: 10–10.5pt. Section heads: 11.5–12pt. Name: 20–22pt with `letter-spacing: 0.18em`.
 
+### CJK name spacing
+
+Chinese personal names are 2–4 characters, but most templates assume 3. Without normalization, a 2-character name (李华) sits visually narrower than a 3-character name (王小明) at the same point size, and the header looks unbalanced.
+
+Convention:
+
+| Char count | Treatment | Example |
+|---|---|---|
+| 2 | Insert one full-width space (U+3000) between the two chars so the rendered width matches a 3-char name | `<div class="header-name">李　华</div>` |
+| 3 | Render as-is, **no extra spaces between characters**. `letter-spacing` already handles tracking | `<div class="header-name">王小明</div>` |
+| 4+ | Render as-is | `<div class="header-name">欧阳修远</div>` |
+
+**Don't add ASCII spaces between every character** (`王 小 明`). Combined with `letter-spacing: 0.18em` it doubles the gap and produces obvious visual sprawl.
+
 ## Theme color systems
 
 Pick **one** brand-aligned accent and stick with it. Define it as a CSS constant the entire stylesheet reuses (one primary `--accent`, one darker `--accent-deep`, one tinted `--tag-bg`).
@@ -242,12 +256,51 @@ Some users will say "全部 logo 不要" — be ready to remove every `<img>` an
 
 ### Awards grid (2-column)
 
+**Use a flex-item-per-award layout — not cross-row column alignment.** A common mistake is laying out 4 columns (marker / name / tag / role) × 2 sides as an 8-column grid. This breaks two ways:
+
+1. **Long badge wraps.** A fixed `56–64px` tag column can't fit 4-char badges like "国家级立项" or "国一等奖" — they wrap to two lines and blow up the row height.
+2. **Odd item count looks lopsided.** 5 awards in an 8-column grid leaves the bottom-right cell empty *and* forces all rows to share column widths globally, so a single long badge in row 2 leaves whitespace in rows 1 and 3.
+
+The fix: outer grid is just `1fr 1fr` for the 2-column page split; each award is its own flex container that sizes itself.
+
 ```css
-.award-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 24px; }
-.award-item { font-size: 9.5pt; line-height: 1.7; display: flex; gap: 6px; align-items: baseline; }
-.award-item::before { content: "▸"; color: var(--accent); font-size: 9pt; }
-.award-tag { display: inline-block; background: var(--tag-bg); color: var(--accent-deep); font-size: 8.5pt; font-weight: 600; padding: 0 5px; border-radius: 3px; }
+.award-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 24px;
+  row-gap: 2px;
+  font-size: 9.5pt;
+  line-height: 1.65;
+}
+.award-item {
+  display: flex; align-items: baseline; gap: 6px;
+  min-width: 0;
+}
+.award-item .aw-marker { color: var(--accent); font-size: 9pt; flex-shrink: 0; }
+.award-item .aw-name   { flex: 1; min-width: 0; }
+.award-item .aw-role   { color: #6b7280; white-space: nowrap; flex-shrink: 0; }
+.award-tag {
+  display: inline-block;
+  background: var(--tag-bg); color: var(--accent-deep);
+  font-size: 8.5pt; font-weight: 600;
+  padding: 0 6px; border-radius: 3px;
+  white-space: nowrap; flex-shrink: 0;     /* never wrap, never shrink */
+}
 ```
+
+```html
+<div class="award-grid">
+  <div class="award-item">
+    <span class="aw-marker">▸</span>
+    <span class="aw-name">XXXX 全国 XX 大赛</span>
+    <span class="award-tag">国家级立项</span>
+    <span class="aw-role">第一负责人</span>
+  </div>
+  ...
+</div>
+```
+
+`white-space: nowrap` on `.award-tag` and `.aw-role` is mandatory — without it, badges and role labels wrap and the entry height jumps. `flex-shrink: 0` keeps them from being compressed when the name is long.
 
 ### Timeline list (date | event grid)
 
@@ -368,6 +421,11 @@ You *may* adjust:
 - **Numerals**: prefer half-width Latin digits (`790 万` not `790万`) for tabular alignment with `font-variant-numeric: tabular-nums`.
 - **Quotes**: Chinese curly quotes "..." for Chinese terms; ASCII quotes only inside English code/identifiers.
 - **Half-width punctuation around English**: `XX 工程` (space) is more readable than `XX工程` for mixed text.
+- **Patent / paper / book titles in Chinese context use 《》** (book-title marks), not English italics or quotes. Apply to:
+  - 中国专利: `《一种基于 XX 的 XX 装置》`
+  - 中文期刊文章: `《物理学报》上的《XXX 研究》`
+  - 中文著作 / 教材 / 报告: `《习近平谈治国理政》`
+  English-language paper titles stay in italics inside `paper-cite` blocks — don't put `《》` around English titles.
 
 ## Section ordering by major
 

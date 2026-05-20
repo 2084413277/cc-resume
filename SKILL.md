@@ -12,15 +12,97 @@ The user wants a polished CV / 简历 they can print or attach to applications. 
 
 ## Workflow at a glance
 
-1. **Read the source** (`*.txt`, `*.md`, `*.docx`) and extract every fact verbatim. Don't paraphrase or invent.
-2. **Build one HTML file per person.** Inline `<style>` — no external CSS file. Each resume is self-contained.
-3. **Render to PDF** with headless Edge (Chrome works too):
+1. **Read the source** (`*.txt`, `*.md`, `*.docx`, `*.pptx`, `*.pdf`) and extract every fact verbatim. Don't paraphrase or invent.
+2. **Extract the embedded photo** from the source if there is one — see [Extracting the portrait](#extracting-the-portrait) below.
+3. **Build one HTML file per person.** Inline `<style>` — no external CSS file. Each resume is self-contained.
+4. **Render to PDF** with headless Edge (Chrome works too):
    ```powershell
    & $edge --headless=new --disable-gpu --no-pdf-header-footer --no-sandbox `
      --print-to-pdf="<out>.pdf" "file:///<absolute-path-to-html>"
    ```
-4. **Verify page count** by parsing the PDF — see "Page-count check" below.
-5. **Iterate.** Each user remark is usually one of: change a fact, change a color, change a font, change a bullet structure, or "fit on one page."
+5. **Verify page count** by parsing the PDF — see "Page-count check" below.
+6. **Iterate.** Each user remark is usually one of: change a fact, change a color, change a font, change a bullet structure, or "fit on one page."
+
+## Extracting the portrait
+
+Most source files (`.docx`, `.pptx`, the user's exported PDF resume) embed the candidate's portrait. **Always check for an embedded photo before falling back to a `PHOTO` placeholder** — the user expects the layout to look complete on first render.
+
+`.docx` and `.pptx` are ZIP archives. The portrait lives at:
+- `.docx` → `word/media/image1.{png,jpeg}` (and image2, image3, ...)
+- `.pptx` → `ppt/media/image1.{png,jpeg}`
+- `.pdf` → use `pdfimages -j input.pdf prefix` (poppler-utils) to dump every embedded image
+
+### PowerShell (Windows)
+
+```powershell
+# Treat the file as a zip and extract media/
+$src  = "E:\path\to\个人简历.pptx"
+$temp = "$env:TEMP\portrait-extract"
+if (Test-Path $temp) { Remove-Item $temp -Recurse -Force }
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+[System.IO.Compression.ZipFile]::ExtractToDirectory($src, $temp)
+
+# pptx → ppt/media; docx → word/media
+$mediaDir = if (Test-Path "$temp\ppt\media") { "$temp\ppt\media" } else { "$temp\word\media" }
+Get-ChildItem $mediaDir | Format-Table Name, Length
+
+# Copy the largest image (usually the portrait) into your project
+$largest = Get-ChildItem $mediaDir | Sort-Object Length -Descending | Select-Object -First 1
+Copy-Item $largest.FullName "<your-cv-folder>\photo.jpg"
+```
+
+### Bash (macOS / Linux)
+
+```bash
+src="$HOME/path/to/resume.pptx"
+tmp=$(mktemp -d)
+unzip -q "$src" -d "$tmp"
+mediadir=$(ls -d "$tmp"/{ppt,word}/media 2>/dev/null | head -n1)
+ls -laS "$mediadir"
+# largest image is usually the portrait
+cp "$(ls -S "$mediadir"/* | head -n1)" "<your-cv-folder>/photo.jpg"
+```
+
+### Inserting the photo
+
+Once `photo.jpg` (or `.png`) sits next to the resume HTML:
+
+```html
+<img class="header-photo" src="photo.jpg" alt="证件照" />
+```
+
+The template's `.header-photo` style (`object-fit: contain` / `cover`) will frame it correctly at 80×110 or whatever you've set.
+
+**Self-contained alternative — inline as data URI** (so the HTML is a single distributable file with no asset dependency):
+
+```powershell
+$bytes = [System.IO.File]::ReadAllBytes("photo.jpg")
+$b64   = [Convert]::ToBase64String($bytes)
+"data:image/jpeg;base64,$b64" | Set-Clipboard
+# paste into <img src="..." />
+```
+
+Trade-off: inline data URI bloats HTML (~250 KB for a typical portrait) but lets the user email a single `.html` without a missing-image broken icon.
+
+### When there's no photo
+
+If the source has no embedded image, render a placeholder. Don't ask the user to provide a photo — they often haven't picked one yet:
+
+```html
+<div class="header-photo">PHOTO</div>
+```
+```css
+.header-photo {
+  background: linear-gradient(135deg, #d1d5db 0%, #e5e7eb 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: "Newsreader", serif;
+  font-style: italic;
+  font-size: 8pt;
+  color: #f3f4f6;
+}
+```
+
+The gray gradient + ghosted "PHOTO" wordmark looks intentional and professional even when blank.
 
 ## Project layout
 
